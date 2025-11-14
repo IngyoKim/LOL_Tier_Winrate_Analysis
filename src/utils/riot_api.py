@@ -62,6 +62,8 @@ def fetch_match_info(match_id):
 #  match info에서 특정 플레이어 정보만 추출
 # -----------------------------
 def extract_player_row(match_json, puuid):
+    """match info에서 해당 플레이어 정보 + 팀 오브젝트까지 모두 추출"""
+
     if match_json is None:
         return None
 
@@ -69,21 +71,57 @@ def extract_player_row(match_json, puuid):
     participants = info["participants"]
     match_id = match_json["metadata"]["matchId"]
 
+    # -----------------------
+    # 플레이어 정보 찾기
+    # -----------------------
+    player_data = None
     for p in participants:
         if p["puuid"] == puuid:
-            return {
-                "puuid": puuid,
-                "matchId": match_id,
-                "champion": p["championName"],
-                "win": int(p["win"]),
-                "kills": p["kills"],
-                "deaths": p["deaths"],
-                "assists": p["assists"],
-                "gold": p["goldEarned"],
-                "damage": p["totalDamageDealtToChampions"],
-                "lane": p["lane"],
-                "role": p["role"],
-                "gameDuration": info["gameDuration"]
-            }
+            player_data = p
+            break
 
-    return None
+    if player_data is None:
+        return None
+
+    team_id = player_data["teamId"]   # 100 또는 200
+
+    # -----------------------
+    # 팀 오브젝트 정보 찾기
+    # -----------------------
+    team_obj = None
+    for team in info["teams"]:
+        if team["teamId"] == team_id:
+            team_obj = team["objectives"]
+            break
+
+    if team_obj is None:
+        return None
+
+    # -----------------------
+    # 데이터 구성
+    # -----------------------
+    return {
+        # 기본 정보
+        "puuid": puuid,
+        "matchId": match_id,
+        "champion": player_data["championName"],
+        "win": int(player_data["win"]),
+
+        # 개인 스탯
+        "kills": player_data["kills"],
+        "deaths": player_data["deaths"],
+        "assists": player_data["assists"],
+        "gold": player_data["goldEarned"],
+        "damage": player_data["totalDamageDealtToChampions"],
+        "lane": player_data["lane"],
+        "role": player_data["role"],
+        "gameDuration": info["gameDuration"],
+
+        # 팀 오브젝트 정리
+        "teamBaron": team_obj["baron"]["kills"],
+        "teamDragon": team_obj["dragon"]["kills"],
+        "teamTower": team_obj["tower"]["kills"],
+        "teamHerald": team_obj["riftHerald"]["kills"],
+        "teamInhibitor": team_obj["inhibitor"]["kills"],
+        "teamChampionKills": team_obj["champion"]["kills"]
+    }
