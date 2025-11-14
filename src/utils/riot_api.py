@@ -13,11 +13,47 @@ REGION_PLATFORM = "kr"    # league/summoner API
 # -----------------------------
 #  티어 기반 플레이어 조회
 # -----------------------------
-def fetch_players_by_tier(tier, division="I", page=1):
-    """티어 + 디비전 + 페이지 기반 플레이어 목록 조회"""
+def fetch_players_by_tier(tier, division=None, page=1):
+    """
+    티어에 따라 적절한 API 호출:
+    - IRON~DIAMOND: entries API + division + page
+    - MASTER/GRANDMASTER/CHALLENGER: 단일 API
+    """
+    tier = tier.upper()
+
+    headers = {"X-Riot-Token": API_KEY}
+
+    # -----------------------------
+    # MASTER / GM / CHALLENGER 처리
+    # -----------------------------
+    if tier in ["MASTER", "GRANDMASTER", "CHALLENGER"]:
+        # division은 필요 없음
+        ENDPOINTS = {
+            "MASTER": "masterleagues",
+            "GRANDMASTER": "grandmasterleagues",
+            "CHALLENGER": "challengerleagues"
+        }
+
+        url = f"https://{REGION_PLATFORM}.api.riotgames.com/lol/league/v4/{ENDPOINTS[tier]}/by-queue/RANKED_SOLO_5x5"
+
+        res = requests.get(url, headers=headers)
+        if res.status_code != 200:
+            print("하이 티어 조회 실패:", res.text)
+            return []
+
+        data = res.json()
+
+        # entries 아래 배열에 플레이어 정보가 있음
+        return data.get("entries", [])
+
+    # -----------------------------
+    # IRON ~ DIAMOND 처리
+    # -----------------------------
+    if division is None:
+        raise ValueError("IRON~DIAMOND 티어는 division(I/II/III/IV)이 필요합니다")
+
     url = f"https://{REGION_PLATFORM}.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/{tier}/{division}"
     params = {"page": page}
-    headers = {"X-Riot-Token": API_KEY}
 
     res = requests.get(url, headers=headers, params=params)
     if res.status_code != 200:
@@ -25,6 +61,7 @@ def fetch_players_by_tier(tier, division="I", page=1):
         return []
 
     return res.json()
+
 
 
 # -----------------------------
