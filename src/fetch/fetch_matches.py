@@ -3,7 +3,7 @@ import requests
 import time
 import pandas as pd
 from dotenv import load_dotenv
-from src.utils.riot_api import fetch_match_ids, fetch_match_info, extract_player_row
+from src.utils.riot_api import fetch_match_ids, fetch_match_info, extract_player_rows
 
 load_dotenv()
 API_KEY = os.getenv("RIOT_API_KEY")
@@ -25,7 +25,7 @@ def main():
     for match_id in match_ids:
         match_json = fetch_match_info(match_id)
         time.sleep(1.2)   # rate limit 방지
-        row = extract_player_row(match_json, puuid)
+        row = extract_player_rows(match_json, puuid)
         if row:
             data_list.append(row)
 
