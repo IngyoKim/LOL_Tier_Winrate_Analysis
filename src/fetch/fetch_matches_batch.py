@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from src.utils.riot_api import (
     fetch_match_ids,
     fetch_match_info,
-    extract_match_rows  # 팀·상대 정보 포함된 row 추출
+    extract_match_rows
 )
 
 load_dotenv()
@@ -15,14 +15,20 @@ load_dotenv()
 def main():
     os.makedirs("data/processed", exist_ok=True)
 
-    puuid_file = input("PUUID 파일 경로 (예: data/raw/GOLD_I_puuids.txt): ")
+    puuid_file = input("PUUID 파일 경로 (예: data/raw/GOLD_I_puuids.txt): ").strip()
     match_per_player = int(input("각 플레이어 당 가져올 경기 수(예: 10): "))
 
-    output_path = "data/processed/GOLD_I_matches.csv"
+    # -------------------------
+    # 입력한 파일명에서 티어 추출
+    # -------------------------
+    puuid_filename = os.path.basename(puuid_file)          # GOLD_I_puuids.txt
+    tier_name = puuid_filename.replace("_puuids.txt", "")  # GOLD_I
 
-    # (핵심) 게임 중복 방지를 위한 set
+    # 자동 출력 경로 생성
+    output_path = f"data/processed/{tier_name}_matches.csv"
+
+    # -------------------------
     seen_matches = set()
-
     result_rows = []
 
     # PUUID 리스트 불러오기
@@ -36,12 +42,12 @@ def main():
         print(f"[{idx}/{len(puuid_list)}] {puuid} 처리 중...")
 
         match_ids = fetch_match_ids(puuid, match_per_player)
+        time.sleep(1.2)
 
         for match_id in match_ids:
 
-            # (중복 검사)
             if match_id in seen_matches:
-                continue  # 이미 처리한 경기라면 스킵
+                continue
 
             seen_matches.add(match_id)
 
@@ -49,13 +55,11 @@ def main():
             if not match_json:
                 continue
 
-            # 1경기 → 10row 
             rows = extract_match_rows(match_json)
             result_rows.extend(rows)
 
-            time.sleep(1.2)  # rate limit 방지
+            time.sleep(1.2)
 
-    # 데이터프레임으로 변환
     df = pd.DataFrame(result_rows)
     df.to_csv(output_path, index=False)
 
