@@ -12,6 +12,8 @@ extension_timeline.py
 """
 
 def extract_timeline_features(match_json: dict, timeline_json: dict):
+
+    
     info = match_json["info"]
     match_id = match_json["metadata"]["matchId"]
     game_duration = info["gameDuration"]  # seconds
@@ -20,6 +22,12 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
     frame_interval = timeline_json["info"].get("frameInterval", 60000)
 
     total_minutes = game_duration // 60
+
+    # 프레임 간격이 0이면 timeline이 깨진 경기 → 분석 불가 (skip)
+    if not frame_interval or frame_interval == 0:
+        print(f"[경고] frameInterval=0 → timeline 분석 불가: {match_id}")
+        return None
+
 
     def minute_to_frame(minute):
         return int((minute * 60000) / frame_interval)

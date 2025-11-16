@@ -85,7 +85,7 @@ def collect_matches_from_puuids(puuids, tier_name, match_per_player):
 
         match_ids = fetch_match_ids(puuid, match_per_player)
         print(f"  - 가져온 matchId: {len(match_ids)}개")
-        time.sleep(1.2)
+        time.sleep(3)
 
         for m in match_ids:
             if m in seen:
