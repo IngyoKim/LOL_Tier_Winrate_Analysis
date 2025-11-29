@@ -2,7 +2,7 @@ import time
 from src.fetch.collector import collect_tier_all
 
 # 티어 구성
-NORMAL_TIERS = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND"]
+NORMAL_TIERS = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "EMERALD", "DIAMOND"]
 DIVISIONS = ["I", "II", "III", "IV"]
 
 HIGH_TIERS = ["MASTER", "GRANDMASTER", "CHALLENGER"]

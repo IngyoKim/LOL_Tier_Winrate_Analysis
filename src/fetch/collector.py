@@ -11,6 +11,19 @@ from src.utils.riot_api import (
     extract_timeline_features,
 )
 
+TIER_MAP = {
+    "C": "CHALLENGER",
+    "GM": "GRANDMASTER",
+    "M": "MASTER",
+    "D": "DIAMOND",
+    "E": "EMERALD",
+    "P": "PLATINUM",
+    "G": "GOLD",
+    "S": "SILVER",
+    "B": "BRONZE",
+    "I": "IRON",
+}
+
 HIGH_TIERS = ["MASTER", "GRANDMASTER", "CHALLENGER"]
 
 
@@ -170,9 +183,16 @@ def collect_tier_all(tier, division=None, player_count=300, match_per_player=10)
 # 4) CLI 실행
 # -----------------------------------------------------------
 if __name__ == "__main__":
-    tier = input("티어 입력: ").upper()
-    division = input("디비전 입력(I/II/III/IV 또는 빈칸): ").upper() or None
+    raw_tier = input("티어 입력(C/GM/M/D/E/P/G/S/B/I): ").upper().strip()
+    division = input("디비전 입력(I/II/III/IV 또는 빈칸): ").upper().strip() or None
     player_count = int(input("가져올 플레이어 수: "))
     match_per_player = int(input("플레이어당 경기 수: "))
+
+    # 약어 → 실제 티어 이름 매핑
+    if raw_tier in TIER_MAP:
+        tier = TIER_MAP[raw_tier]
+    else:
+        print("잘못된 티어 입력입니다.")
+        exit()
 
     collect_tier_all(tier, division, player_count, match_per_player)
