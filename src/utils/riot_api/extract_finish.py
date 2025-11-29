@@ -16,12 +16,10 @@ def extract_match_rows(match_json):
     for p in participants:
         team_players[p["teamId"]].append(p)
 
-    # 강제 lane 배정
     for tid in [100, 200]:
         for idx, p in enumerate(team_players[tid]):
             p["_fixed_lane"] = lane_order[idx]
 
-    # lane 매핑
     lane_map = {}
     for p in participants:
         lane = p["_fixed_lane"]
