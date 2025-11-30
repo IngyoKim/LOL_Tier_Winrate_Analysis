@@ -13,7 +13,6 @@ extension_timeline.py
 
 def extract_timeline_features(match_json: dict, timeline_json: dict):
 
-    
     info = match_json["info"]
     match_id = match_json["metadata"]["matchId"]
     game_duration = info["gameDuration"]  # seconds
@@ -27,7 +26,6 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
     if not frame_interval or frame_interval == 0:
         print(f"[경고] frameInterval=0 → timeline 분석 불가: {match_id}")
         return None
-
 
     def minute_to_frame(minute):
         return int((minute * 60000) / frame_interval)
@@ -63,15 +61,19 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
             team = pid_to_team[pid]
             gold = pdata["totalGold"]
 
-            if team == 100: t100_gold += gold
-            else: t200_gold += gold
+            if team == 100: 
+                t100_gold += gold
+            else:
+                t200_gold += gold
 
         t100_kill = t200_kill = 0
         for ev in frame.get("events", []):
             if ev["type"] == "CHAMPION_KILL":
                 t = event_team(ev)
-                if t == 100: t100_kill += 1
-                elif t == 200: t200_kill += 1
+                if t == 100:
+                    t100_kill += 1
+                elif t == 200:
+                    t200_kill += 1
 
         return t100_gold, t200_gold, t100_kill, t200_kill
 
@@ -86,7 +88,7 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
         h100 = h200 = 0
         b100 = b200 = 0
         a100 = a200 = 0
-        g100 = g200 = 0  # Grub / Larva / HORDE
+        g100 = g200 = 0  # Grub / Larva / Horde
 
         for frame in frames:
             for ev in frame.get("events", []):
@@ -96,42 +98,62 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
 
                 etype = ev.get("type")
 
-                # ----- Elite monsters -----
                 if etype == "ELITE_MONSTER_KILL":
                     team = ev.get("killerTeamId")
                     mtype = ev.get("monsterType")
+                    msub = ev.get("monsterSubType")
 
-                    if mtype == "DRAGON":
-                        if team == 100: d100 += 1
-                        else: d200 += 1
+                    # ----- Elder Dragon (중요: monsterSubType으로만 구분됨) -----
+                    if msub == "ELDER_DRAGON":
+                        if team == 100: 
+                            e100 += 1
+                        else: 
+                            e200 += 1
 
-                    elif mtype == "ELDER_DRAGON":
-                        if team == 100: e100 += 1
-                        else: e200 += 1
+                    # ----- Normal Dragons -----
+                    elif mtype == "DRAGON":
+                        if team == 100: 
+                            d100 += 1
+                        else: 
+                            d200 += 1
 
+                    # Herald
                     elif mtype == "RIFTHERALD":
-                        if team == 100: h100 += 1
-                        else: h200 += 1
+                        if team == 100:
+                            h100 += 1
+                        else:
+                            h200 += 1
 
+                    # Baron
                     elif mtype == "BARON_NASHOR":
-                        if team == 100: b100 += 1
-                        else: b200 += 1
+                        if team == 100:
+                            b100 += 1
+                        else:
+                            b200 += 1
 
+                    # Atakhan
                     elif mtype == "ATAKHAN":
-                        if team == 100: a100 += 1
-                        else: a200 += 1
+                        if team == 100:
+                            a100 += 1
+                        else:
+                            a200 += 1
 
-                    elif mtype == "HORDE":  # ★ 유충(Grub)
-                        if team == 100: g100 += 1
-                        else: g200 += 1
+                    # Grub / Horde (신규 패치)
+                    elif mtype == "HORDE":
+                        if team == 100:
+                            g100 += 1
+                        else:
+                            g200 += 1
 
-                # ----- Legacy Grub events (과거 패치 데이터용) -----
+                # Legacy Grub (VOID_GRUB / VOID_LARVA)
                 elif etype == "KILL_PREDEFINED_TARGET":
                     kill_type = ev.get("killType") or ev.get("predefinedTargetId")
                     if kill_type in ("VOID_GRUB", "VOID_LARVA"):
                         team = ev.get("killerTeamId") or ev.get("teamId")
-                        if team == 100: g100 += 1
-                        else: g200 += 1
+                        if team == 100:
+                            g100 += 1
+                        else:
+                            g200 += 1
 
         return d100, d200, e100, e200, h100, h200, b100, b200, a100, a200, g100, g200
 
