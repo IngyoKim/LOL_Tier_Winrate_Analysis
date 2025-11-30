@@ -3,8 +3,6 @@ def extract_match_rows(match_json):
         return []
 
     info = match_json["info"]
-    if info.get("queueId") != 420:
-        return []
 
     match_id = match_json["metadata"]["matchId"]
     game_duration = info["gameDuration"]

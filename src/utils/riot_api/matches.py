@@ -5,7 +5,12 @@ REGION_ROUTING = "asia"
 
 async def fetch_match_ids(session, puuid, count=20):
     url = f"https://{REGION_ROUTING}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
-    params = {"start": 0, "count": count}
+    params = {
+        "start": 0, 
+        "count": count,
+        "queue": 420,
+        "type": "ranked"
+    }
     headers = {"X-Riot-Token": API_KEY}
     return await safe_get_json(session, url, params=params, headers=headers)
 

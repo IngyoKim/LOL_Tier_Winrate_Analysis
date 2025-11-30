@@ -191,7 +191,7 @@ async def collect_tier_all(tier, division=None, player_count=300, match_per_play
 # -----------------------------------------------------------
 # 4) 전체 티어 자동 수집
 # -----------------------------------------------------------
-async def collect_all_tiers(player_count=300, match_per_player=10, delay=3.0):
+async def collect_all_tiers(player_count=300, match_per_player=10, delay=3.0, use_division=True):
 
     print("=====================================================")
     print("▶ All Tier Collector 시작")
@@ -199,33 +199,61 @@ async def collect_all_tiers(player_count=300, match_per_player=10, delay=3.0):
 
     # 1) IRON ~ DIAMOND
     for tier in NORMAL_TIERS:
-        for div in DIVISIONS:
 
-            tier_name = f"{tier} {div}"
-            print(f"\n---------------------------------------------------")
-            print(f"▶ 수집 시작: {tier_name}")
-            print(f"---------------------------------------------------")
+        print(f"\n---------------------------------------------------")
+        print(f"▶ 수집 시작: {tier}")
+        print("---------------------------------------------------")
 
-            try:
-                await collect_tier_all(
-                    tier=tier,
-                    division=div,
-                    player_count=player_count,
-                    match_per_player=match_per_player
-                )
-            except Exception as e:
-                print(f"❌ 오류 발생 (건너뜀): {tier_name}")
-                print("   오류:", e)
+        if use_division:
+            # 기존 방식: I~IV 각각 처리
+            for div in DIVISIONS:
+                tier_name = f"{tier} {div}"
+                print(f"  → {tier_name} 진행")
 
-            print(f"✔ 완료: {tier_name}")
-            await asyncio.sleep(delay)
+                try:
+                    await collect_tier_all(
+                        tier=tier,
+                        division=div,
+                        player_count=player_count,
+                        match_per_player=match_per_player
+                    )
+                except Exception as e:
+                    print(f"❌ 오류 발생 (건너뜀): {tier_name}")
+                    print("   오류:", e)
 
-    # 2) MASTER ~ CHALLENGER
+                await asyncio.sleep(delay)
+
+        else:
+            # 새 방식: division 안 씀 → player_count를 4등분해서 배분
+            per_div = player_count // 4
+            remainder = player_count % 4
+
+            for i, div in enumerate(DIVISIONS):
+                alloc = per_div + (1 if i < remainder else 0)
+
+                print(f"  → {tier} division {div}에서 {alloc}명 수집")
+
+                try:
+                    await collect_tier_all(
+                        tier=tier,
+                        division=div,
+                        player_count=alloc,
+                        match_per_player=match_per_player
+                    )
+                except Exception as e:
+                    print(f"❌ 오류 발생 (건너뜀): {tier} {div}")
+                    print("   오류:", e)
+
+                await asyncio.sleep(delay)
+
+        print(f"✔ 완료: {tier}")
+
+    # 2) MASTER ~ CHALLENGER는 division 없음
     for tier in HIGH_TIERS:
 
         print(f"\n---------------------------------------------------")
         print(f"▶ 수집 시작: {tier}")
-        print(f"---------------------------------------------------")
+        print("---------------------------------------------------")
 
         try:
             await collect_tier_all(
@@ -245,7 +273,6 @@ async def collect_all_tiers(player_count=300, match_per_player=10, delay=3.0):
     print("🎉 All Tier Collector 전체 완료")
     print("=====================================================")
 
-
 # -----------------------------------------------------------
 # CLI
 # -----------------------------------------------------------
@@ -256,6 +283,7 @@ if __name__ == "__main__":
 
     player_count = int(input("티어당 수집할 플레이어 수 (예: 300): ").strip())
     match_per_player = int(input("플레이어당 match 수 (예: 10): ").strip())
+    use_division = input("세부 티어 구분 사용 여부(y/n): ").strip().lower() == "y"
     
     delay = 3.0
 
@@ -263,6 +291,7 @@ if __name__ == "__main__":
         collect_all_tiers(
             player_count=player_count,
             match_per_player=match_per_player,
-            delay=delay
+            delay=delay,
+            use_division=use_division
         )
     )
