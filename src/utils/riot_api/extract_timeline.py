@@ -205,7 +205,7 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
 
         return out100, out200, inn100, inn200, base100, base200, nex100, nex200, inh100, inh200
 
-    # ---------------------------------------------------
+        # ---------------------------------------------------
     # Build CSV Row
     # ---------------------------------------------------
     result = {
@@ -216,29 +216,74 @@ def extract_timeline_features(match_json: dict, timeline_json: dict):
 
     for minute in range(total_minutes + 1):
 
+        # gold, kill
         g100, g200, k100, k200 = frame_gold_kills(safe_frame(minute))
 
+        # monsters
         d100, d200, e100, e200, h100, h200, b100, b200, a100, a200, gr100, gr200 = scan_monsters(minute)
 
+        # buildings
         out100, out200, inn100, inn200, base100, base200, nex100, nex200, inh100, inh200 = scan_buildings(minute)
 
-        # gold/kill
+        # --------------------------
+        # Gold / Kills (team별 + diff)
+        # --------------------------
+        result[f"gold100_{minute}"] = g100
+        result[f"gold200_{minute}"] = g200
         result[f"goldDiff_{minute}"] = g100 - g200
+
+        result[f"kill100_{minute}"] = k100
+        result[f"kill200_{minute}"] = k200
         result[f"killDiff_{minute}"] = k100 - k200
 
-        # monsters
+        # --------------------------
+        # Monsters (team별 + diff)
+        # --------------------------
+        result[f"dragon100_{minute}"] = d100
+        result[f"dragon200_{minute}"] = d200
         result[f"dragonDiff_{minute}"] = d100 - d200
+
+        result[f"elder100_{minute}"] = e100
+        result[f"elder200_{minute}"] = e200
         result[f"elderDiff_{minute}"] = e100 - e200
+
+        result[f"herald100_{minute}"] = h100
+        result[f"herald200_{minute}"] = h200
         result[f"heraldDiff_{minute}"] = h100 - h200
+
+        result[f"baron100_{minute}"] = b100
+        result[f"baron200_{minute}"] = b200
         result[f"baronDiff_{minute}"] = b100 - b200
+
+        result[f"atakhan100_{minute}"] = a100
+        result[f"atakhan200_{minute}"] = a200
         result[f"atakhanDiff_{minute}"] = a100 - a200
+
+        result[f"grub100_{minute}"] = gr100
+        result[f"grub200_{minute}"] = gr200
         result[f"grubDiff_{minute}"] = gr100 - gr200
 
-        # buildings
+        # --------------------------
+        # Buildings (team별 + diff)
+        # --------------------------
+        result[f"outerTower100_{minute}"] = out100
+        result[f"outerTower200_{minute}"] = out200
         result[f"outerTowerDiff_{minute}"] = out100 - out200
+
+        result[f"innerTower100_{minute}"] = inn100
+        result[f"innerTower200_{minute}"] = inn200
         result[f"innerTowerDiff_{minute}"] = inn100 - inn200
+
+        result[f"baseTower100_{minute}"] = base100
+        result[f"baseTower200_{minute}"] = base200
         result[f"baseTowerDiff_{minute}"] = base100 - base200
+
+        result[f"nexusTower100_{minute}"] = nex100
+        result[f"nexusTower200_{minute}"] = nex200
         result[f"nexusTowerDiff_{minute}"] = nex100 - nex200
+
+        result[f"inhibitor100_{minute}"] = inh100
+        result[f"inhibitor200_{minute}"] = inh200
         result[f"inhibitorDiff_{minute}"] = inh100 - inh200
 
     return result
