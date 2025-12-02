@@ -11,6 +11,7 @@ TIER_MAP = {
     "GM": "GRANDMASTER",
     "M": "MASTER",
     "D": "DIAMOND",
+    "E": "EMERALD",
     "P": "PLATINUM",
     "G": "GOLD",
     "S": "SILVER",
