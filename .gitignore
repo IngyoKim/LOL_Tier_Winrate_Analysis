@@ -20,8 +20,10 @@ ENV/
 # Data files
 data/raw/*
 data/processed/*
+data/analysis/*
 *.csv
 *.json
+*.png
 
 # Logs
 logs/
