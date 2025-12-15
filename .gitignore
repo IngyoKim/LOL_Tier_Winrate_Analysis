@@ -18,12 +18,9 @@ ENV/
 *.env
 
 # Data files
-data/raw/*
-data/processed/*
-data/analysis/*
-*.csv
+.csv
 *.json
-*.png
+.png
 
 # Logs
 logs/
