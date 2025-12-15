@@ -32,7 +32,7 @@ Riot Games 공식 API 기반 대규모 매치 수집 및 타임라인 분석을 
 
 | 모델 상세 | 내용 |
 | :--- | :--- |
-| **분석 모델** | Logistic Regression (이진 분류) |
+| **분석 모델** | Logistic Regression |
 | **입력 변수** | `goldDiff`, `totalKillDiff`, `dragonDiff`, `baronDiff`, `heraldDiff`, `elderDiff`, `atakhanDiff`, `grubDiff`, `outerTowerDiff`, `innerTowerDiff`, `baseTowerDiff` |
 | **예측 정확도** | 약 **70%** (정량 지표만을 사용한 분석임을 고려할 때 유의미한 결과) |
 
